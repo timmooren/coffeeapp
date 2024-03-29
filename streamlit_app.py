@@ -65,7 +65,7 @@ def read_names_from_sql(department_filter="Any"):
 st.title("☕️ Accenture Coffee Match App")
 
 # Show .webp image in streamlit
-st.image("image.webp", use_column_width=True)
+st.image("image2.jpg")
 st.markdown("## 👋 Welcome to the coffee match app!")
 st.markdown(
     "Please register your name or find a coffee match by choosing one of the options below."
@@ -85,7 +85,9 @@ with tab1:
         department = st.selectbox(
             "Department", ["Sales", "Marketing", "Engineering", "Intelligence"]
         )
-        submitted = st.form_submit_button("Submit", help="Registers your name", type="primary")
+        submitted = st.form_submit_button(
+            "Submit", help="Registers your name", type="primary"
+        )
         deleted = st.form_submit_button(
             ":red[Delete]", help="Deletes your registered name from the database"
         )  # Add Delete button
