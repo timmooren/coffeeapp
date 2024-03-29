@@ -111,7 +111,7 @@ with tab2:
         ["Any", "Sales", "Marketing", "Engineering", "Finance"],
         key="department_filter",
     )
-    if st.button("🔎 Find Coffee Match"):
+    if st.button("🔎 Find Coffee Match", type="primary"):
         database = read_names_from_sql(department_filter)
         if len(database) > 1:
             # put output in container
