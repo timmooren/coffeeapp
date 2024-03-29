@@ -42,6 +42,10 @@ def read_names_from_csv():
 
 st.title("☕️ Accenture Coffee Match App")
 
+# show .webp image in streamlit
+st.image("image.webp", use_column_width=True)
+
+
 st.markdown(
     "Please register your name or find a coffee match by choosing one of the options below."
 )
