@@ -58,9 +58,9 @@ st.title("☕️ Accenture Coffee Match App")
 
 # Show .webp image in streamlit
 st.image("image.webp", use_column_width=True)
-
+st.markdown("## 👋 Welcome to the coffee match app!")
 st.markdown(
-    "👋 Welcome to the coffee match app! Please register your name or find a coffee match by choosing one of the options below."
+    "Please register your name or find a coffee match by choosing one of the options below."
 )
 
 # Creating tabs
