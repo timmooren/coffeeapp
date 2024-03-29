@@ -92,7 +92,7 @@ with tab1:
 
         if submitted and name and surname:
             if add_name_to_sql(name, surname, department):
-                st.success(f"Submitted: {name} {surname} ({department})")
+                st.success(f"Registered: {name} {surname} ({department})")
             else:
                 st.error("⚠️ Name already exists in the database.")
         if deleted and name and surname:  # Delete action
