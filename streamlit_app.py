@@ -72,7 +72,7 @@ st.markdown(
 )
 
 # Creating tabs
-tab1, tab2 = st.tabs(["Submit Name", "Find Coffee Match"])
+tab1, tab2 = st.tabs(["Register your name", "Find coffee match"])
 
 # Submit Name tab
 with tab1:
@@ -85,7 +85,7 @@ with tab1:
         department = st.selectbox(
             "Department", ["Sales", "Marketing", "Engineering", "Intelligence"]
         )
-        submitted = st.form_submit_button("Submit", help="Registers your name")
+        submitted = st.form_submit_button("Submit", help="Registers your name", type="primary")
         deleted = st.form_submit_button(
             ":red[Delete]", help="Deletes your registered name from the database"
         )  # Add Delete button
