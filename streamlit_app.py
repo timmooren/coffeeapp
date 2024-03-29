@@ -132,8 +132,9 @@ with tab2:
                 "😢 Not enough people in the database for a match, or not enough people in the selected department."
             )
 
+st.markdown("### Credits:")
 
-st.markdown("### This app was made by the Song 2024 interns:")
+st.markdown("This app was made by the Song 2024 interns:")
 # link to timmooren.streamlit.app
 st.link_button("Tim Mooren", "https://timmooren.streamlit.app")
 st.button("More names")
