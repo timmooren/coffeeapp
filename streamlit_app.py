@@ -69,7 +69,7 @@ tab1, tab2 = st.tabs(["Submit Name", "Find Coffee Match"])
 # Submit Name tab
 with tab1:
     st.markdown(
-        "👇 Here you can register your name so someone else can find you as a coffee match or delete your name if it's already registered."
+        "👇 Here you can register your name so someone else can find you as a coffee match, or delete your name if it's already registered."
     )
     with st.form("submit_name_form"):
         name = st.text_input("Name")
