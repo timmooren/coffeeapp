@@ -1,151 +1,79 @@
 import streamlit as st
-import pandas as pd
-import math
-from pathlib import Path
+import csv
+import random
+import os
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP Dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
+# Constants
+CSV_FILE = "database.csv"
+
+
+def is_name_in_csv(name, surname):
+    try:
+        with open(CSV_FILE, mode="r") as file:
+            reader = csv.reader(file)
+            next(reader, None)  # Skip the header
+            for row in reader:
+                if name == row[0] and surname == row[1]:
+                    return True
+        return False
+    except FileNotFoundError:
+        return False
+
+
+# Function to add a new name to the CSV database
+def add_name_to_csv(name, surname):
+    if not is_name_in_csv(name, surname):
+        with open(CSV_FILE, mode="a", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow([name, surname])
+        return True
+    else:
+        return False
+
+
+def read_names_from_csv():
+    if not os.path.exists(CSV_FILE):
+        return []
+    with open(CSV_FILE, mode="r") as file:
+        reader = csv.reader(file)
+        next(reader, None)  # Skip the header
+        return [f"{row[0]} {row[1]}" for row in reader]
+
+
+st.title("☕️ Accenture Coffee Match App")
+
+st.markdown(
+    "Please register your name or find a coffee match by choosing one of the options below."
 )
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# Creating tabs
+tab1, tab2 = st.tabs(["Submit Name", "Find Coffee Match"])
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
-
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
-
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
+# Submit Name tab
+with tab1:
+    st.markdown(
+        "👇 Here you can regster your name so someone else can find you as a coffee match."
     )
+    with st.form("submit_name_form"):
+        name = st.text_input("Name")
+        surname = st.text_input("Surname")
+        submitted = st.form_submit_button("Submit")
+        if submitted and name and surname:
+            if add_name_to_csv(name, surname):
+                st.success(f"Submitted: {name} {surname}")
+            else:
+                st.error("Name already exists in the database.")
 
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
+# Find Coffee Match tab
+with tab2:
+    if st.button("Find Coffee Match"):
+        database = read_names_from_csv()
+        if len(database) > 1:
+            # Ensuring the random choice is not the last submitted user, if applicable
+            match = random.choice([person for person in database])
+            st.balloons()
+            st.write(f"Your coffee match is: {match}")
+            st.write("Send them a message on Teams to schedule a coffee break! ☕️")
 
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP Dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[gdp_df['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[gdp_df['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
         else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+            st.write("Not enough people in the database for a match.")
